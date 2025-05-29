@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "web_profile.apps.WebProfileConfig",
     "corsheaders",
+    "web_target",
 ]
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
