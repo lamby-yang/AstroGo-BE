@@ -68,12 +68,11 @@ class User(models.Model):
         db_column='height',
         verbose_name='身高(cm)'
     )
-    open_id = models.CharField(
-        max_length=100,
+    weight = models.IntegerField(
         null=True,
         blank=True,
-        db_column='open_id',
-        verbose_name='应用ID'
+        db_column='weight',
+        verbose_name='体重(kg)'
     )
 
     class Meta:
