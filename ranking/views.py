@@ -133,17 +133,20 @@ class CampusRankingView(APIView):
 
 class ExerciseRecordsView(APIView):
     """
-    运动记录API视图
-    GET: 获取所有运动记录
-    POST: 创建新的运动记录
-    PUT: 批量更新运动记录
+    特定用户的运动记录API视图
+    GET: 获取特定用户的所有运动记录
+    POST: 为特定用户创建新的运动记录
     """
 
-    def get(self, request):
-        """获取所有运动记录"""
+    def get(self, request, uid):
+        """获取特定用户的所有运动记录"""
         try:
-            # 只获取未删除的记录
-            records = ExerciseRecords.objects.filter(is_deleted=False)
+            # 获取特定用户且未删除的记录
+            records = ExerciseRecords.objects.filter(
+                uid=uid,
+                is_deleted=False
+            ).order_by('-record_time')  # 按记录时间倒序排列
+
             serializer = ExerciseRecordSerializer(records, many=True)
 
             return Response({
@@ -159,10 +162,14 @@ class ExerciseRecordsView(APIView):
                 "data": []
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def post(self, request):
-        """创建新的运动记录"""
+    def post(self, request, uid):
+        """为特定用户创建新的运动记录"""
         try:
-            serializer = ExerciseRecordSerializer(data=request.data)
+            # 将URL中的uid添加到请求数据中
+            request_data = request.data.copy()
+            request_data['uid'] = uid
+
+            serializer = ExerciseRecordSerializer(data=request_data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({
