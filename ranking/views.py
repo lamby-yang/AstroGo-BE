@@ -8,6 +8,7 @@ from ranking.models import ExerciseRecords, DailyRanking, WeeklyRanking, Monthly
 from web_profile.models import User
 from datetime import date, timedelta
 from collections import defaultdict
+from .serializers import ExerciseRecordSerializer
 
 class CampusRankingView(APIView):
     def get(self, request):
@@ -128,3 +129,143 @@ class CampusRankingView(APIView):
         elif period == 'monthly':
             return "本月"
         return "未知周期"
+
+
+class ExerciseRecordsView(APIView):
+    """
+    特定用户的运动记录API视图
+    GET: 获取特定用户的所有运动记录
+    POST: 为特定用户创建新的运动记录
+    """
+
+    def get(self, request, uid):
+        """获取特定用户的所有运动记录"""
+        try:
+            # 获取特定用户且未删除的记录
+            records = ExerciseRecords.objects.filter(
+                uid=uid,
+                is_deleted=False
+            ).order_by('-record_time')  # 按记录时间倒序排列
+
+            serializer = ExerciseRecordSerializer(records, many=True)
+
+            return Response({
+                "code": 0,
+                "msg": "success",
+                "data": serializer.data
+            })
+
+        except Exception as e:
+            return Response({
+                "code": -1,
+                "msg": f"获取记录失败: {str(e)}",
+                "data": []
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, uid):
+        """为特定用户创建新的运动记录"""
+        try:
+            # 将URL中的uid添加到请求数据中
+            request_data = request.data.copy()
+            request_data['uid'] = uid
+
+            serializer = ExerciseRecordSerializer(data=request_data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "code": 0,
+                    "msg": "记录创建成功",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+
+            return Response({
+                "code": -2,
+                "msg": "数据验证失败",
+                "errors": serializer.errors,
+                "data": None
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "code": -1,
+                "msg": f"创建记录失败: {str(e)}",
+                "data": None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ExerciseRecordDetailView(APIView):
+    """
+    单条运动记录操作
+    GET: 获取单条记录
+    PUT: 更新单条记录
+    DELETE: 删除记录（软删除）
+    """
+
+    def get_object(self, pk):
+        try:
+            return ExerciseRecords.objects.get(record_id=pk, is_deleted=False)
+        except ExerciseRecords.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        """获取单条记录"""
+        record = self.get_object(pk)
+        if not record:
+            return Response({
+                "code": -3,
+                "msg": "记录不存在或已删除",
+                "data": None
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ExerciseRecordSerializer(record)
+        return Response({
+            "code": 0,
+            "msg": "success",
+            "data": serializer.data
+        })
+
+    def put(self, request, pk):
+        """更新单条记录"""
+        record = self.get_object(pk)
+        if not record:
+            return Response({
+                "code": -3,
+                "msg": "记录不存在或已删除",
+                "data": None
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ExerciseRecordSerializer(record, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "code": 0,
+                "msg": "记录更新成功",
+                "data": serializer.data
+            })
+
+        return Response({
+            "code": -2,
+            "msg": "数据验证失败",
+            "errors": serializer.errors,
+            "data": None
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        """软删除记录（标记is_deleted）"""
+        record = self.get_object(pk)
+        if not record:
+            return Response({
+                "code": -3,
+                "msg": "记录不存在或已删除",
+                "data": None
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # 软删除 - 标记为已删除
+        record.is_deleted = True
+        record.save()
+
+        return Response({
+            "code": 0,
+            "msg": "记录已删除",
+            "data": None
+        }, status=status.HTTP_200_OK)

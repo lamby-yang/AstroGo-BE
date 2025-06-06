@@ -35,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
             'age',
             'height',  # 注意数据库中是 INT 类型
             'pwd',
-            'open_id',  # 新增必须包含的字段
+            'weight',  # 新增必须包含的字段
         ]
         read_only_fields = (
             'uid',

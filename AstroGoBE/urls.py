@@ -21,10 +21,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/massage/', include('massage.urls')),      # 👈 为 massage 加前缀
-    path('api/profile/', include('web_profile.urls')),  # 👈 为 profile 加前缀
-    # path('api/', include('massage.urls')),
-    # path('api/', include('web_profile.urls')),  # 包含应用路由
+    path('api/', include('message.urls')),
+    path('api/', include('web_profile.urls')),  # 包含应用路由
     path('api/auth/', include('rest_framework.urls')),  # 启用DRF登录
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
