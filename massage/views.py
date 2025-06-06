@@ -26,17 +26,18 @@ def register_user(request):
         pwd = data.get("pwd")
         age = data.get("age")
         height = data.get("height")
+        weight = data.get("weight")
         # 必填字段校验
-        if not user_name or not phone_number or not avatar_url or not department or not pwd or not age or not height:
+        if not user_name or not phone_number  or not department or not pwd or not age or not height:
             return JsonResponse({"error": "user_name and phone_number are required"}, status=400)
         # 连接数据库
         conn = get_db_connection()
         cursor = conn.cursor()
 
         # 插入用户数据
-        sql = " INSERT INTO UserInfo (user_name, phone_number, avatar_url, department, pwd, age, height)  VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        sql = " INSERT INTO UserInfo (user_name, phone_number, avatar_url, department, pwd, age, height,weight)  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, (user_name, phone_number,
-                       avatar_url, department, pwd, age, height))
+                       avatar_url, department, pwd, age, height,weight))
         conn.commit()
 
         # 获取新注册用户的 uid
