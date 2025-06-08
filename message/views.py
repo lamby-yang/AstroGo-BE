@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db.models import Sum
 from web_profile.models import User as UserInfo
 from .models import ExerciseReminders, ExerciseTargets, ExerciseRecords
+from django.forms.models import model_to_dict
 
 JWT_SECRET = settings.JWT_SECRET
 JWT_EXPIRATION_SECONDS = 3600 * 24 * 7  # 7天
@@ -26,9 +27,10 @@ def register_user(request):
         pwd = data.get("pwd")
         age = data.get("age")
         height = data.get("height")
+        weight = data.get("weight")
 
         # 必填字段校验
-        required_fields = ["user_name", "phone_number", "avatar_url", "department", "pwd", "age", "height"]
+        required_fields = ["user_name", "phone_number", "avatar_url", "department", "pwd", "age", "height","weight"]
         if not all(data.get(field) for field in required_fields):
             return JsonResponse({"error": "所有字段都是必填项"}, status=400)
 
@@ -44,7 +46,8 @@ def register_user(request):
             department=department,
             pwd=pwd,
             age=age,
-            height=height
+            height=height,
+            weight=weight
         )
 
         return JsonResponse({"message": "用户注册成功", "uid": user.uid}, status=201)
@@ -108,12 +111,18 @@ def exercise_reminders(request, uid):
         if reminders.exists():
             reminder_list = [
                 {
+                    "reminder_days_of_week":r.reminder_days_of_week,
                     "reminder_id": r.reminder_id,
                     "reminder_time": r.reminder_time.strftime("%H:%M:%S"),
                     "is_active": r.is_active
                 } for r in reminders
             ]
-            return JsonResponse({"data": reminder_list}, status=200)
+            today_index = datetime.today().weekday()
+            today_reminders = [
+                reminder for reminder in reminder_list
+                if reminder["reminder_days_of_week"][today_index] == '1'
+            ]
+            return JsonResponse({"today_reminders":today_reminders}, status=200)
         else:
             return JsonResponse({"message": "没有找到该用户的运动提醒记录"}, status=404)
 
@@ -153,7 +162,7 @@ def get_period_start_end(target_cycle):
 def calculate_completion(target_type, target_value, actual_duration, actual_calorie):
     if target_type == '锻炼时长' and target_value > 0:
         return min(round((actual_duration / target_value) * 100, 2), 100)
-    elif target_type == '燃烧卡路里' and target_value > 0:
+    elif target_type == 'calorie' and target_value > 0:
         return min(round((actual_calorie / target_value) * 100, 2), 100)
     return 0
 
@@ -170,7 +179,8 @@ def get_weekly_stats(uid):
         is_deleted=False,
         verification_status='pass'
     ).values('record_time__date').annotate(
-        total_duration=Sum('duration')
+        total_duration=Sum('duration'),
+        total_calorie=Sum('calorie')
     ).order_by('record_time__date')
 
     # 创建完整一周的数据
@@ -180,15 +190,17 @@ def get_weekly_stats(uid):
     for i in range(7):
         current_date = start_of_week + timedelta(days=i)
         duration_value = 0
-
+        calorie=""
         # 查找当天的记录
         for record in records:
             if record['record_time__date'] == current_date:
                 duration_value = record['total_duration'] or 0
+                calorie=record['total_calorie']
                 break
 
         daily_durations.append({
             'date': current_date.strftime('%Y-%m-%d'),
+            'calorie':calorie,
             'weekday': current_date.strftime('%A'),
             'duration': duration_value
         })
@@ -220,6 +232,8 @@ def exercise_overview(request, uid):
     try:
         # 获取最新的运动目标
         target = ExerciseTargets.objects.filter(uid=uid).order_by('-target_id').first()
+        target_dicts = [model_to_dict(target)]
+        print(json.dumps(target_dicts, indent=2))
 
         if not target:
             return JsonResponse({"error": "未找到用户的运动目标"}, status=404)
@@ -237,12 +251,16 @@ def exercise_overview(request, uid):
             total_duration=Sum('duration'),
             total_calorie=Sum('calorie')
         )
+        print(f"total_duration: {records['total_duration']}")
+        print(f"total_calorie: {records['total_calorie']}")
 
         total_duration = records['total_duration'] or 0
         total_calorie = records['total_calorie'] or 0
 
         # 判断目标类型并计算完成度
         target_value = target.target_duration if target.target_type == '锻炼时长' else target.target_calorie
+        print(f"target_value: {target_value}")
+        print(f"target.target_type: {target.target_type}")
         completion_percent = calculate_completion(
             target.target_type,
             target_value or 0,
@@ -252,13 +270,18 @@ def exercise_overview(request, uid):
 
         # 获取周统计数据
         weekly_stats = get_weekly_stats(uid)
+        today_str = date.today().isoformat()
+        print(f"today_str: {today_str}")
+        print("Today's data:", weekly_stats)
 
+        today_data = next((item for item in weekly_stats['daily_durations'] if item["date"] == today_str), None)
+        # print("Today's data:", today_data)
         return JsonResponse({
             "target_cycle": target.target_cycle,
             "target_type": target.target_type,
             "target_value": target_value,
-            "actual_duration": total_duration,
-            "actual_calorie": total_calorie,
+            "actual_duration": today_data["duration"],
+            "actual_calorie": today_data["calorie"],
             "completion_percent": completion_percent,
             "period_start": start_date.strftime('%Y-%m-%d'),
             "period_end": end_date.strftime('%Y-%m-%d'),

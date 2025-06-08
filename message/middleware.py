@@ -8,7 +8,7 @@ JWT_SECRET = settings.JWT_SECRET
 class TokenAuthMiddleware(MiddlewareMixin):
     def process_request(self, request):
         # 登录注册接口不需要验证token
-        if request.path in ['/api/massage/register_user/', '/api/massage/login_user/']:
+        if request.path in ['/api/register_user/', '/api/login_user/']:
             return None
 
         auth_header = request.headers.get("Authorization")

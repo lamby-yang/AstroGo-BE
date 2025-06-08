@@ -59,6 +59,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "message.middleware.TokenAuthMiddleware"
 ]
 
 ROOT_URLCONF = "AstroGoBE.urls"

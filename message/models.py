@@ -8,6 +8,7 @@ class ExerciseReminders(models.Model):
         on_delete=models.CASCADE,
         db_column='uid'
     )
+    reminder_days_of_week=models.CharField(max_length=9)
     reminder_time = models.TimeField()
     is_active = models.BooleanField(default=True)
 
