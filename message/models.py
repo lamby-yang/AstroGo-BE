@@ -11,6 +11,7 @@ class ExerciseReminders(models.Model):
     reminder_days_of_week=models.CharField(max_length=9)
     reminder_time = models.TimeField()
     is_active = models.BooleanField(default=True)
+    reminder_days_of_week = models.CharField(max_length=8)  # 如 "0101010"
 
     class Meta:
         db_table = 'ExerciseReminders'
@@ -56,7 +57,7 @@ class ExerciseRecords(models.Model):
     is_deleted = models.BooleanField(default=False)
     verification_status = models.CharField(
         max_length=10,
-        choices=[('pending', '待审核'), ('pass', '通过'), ('reject', '拒绝')],
+        choices=[('pending', '待审核'), ('pass', '通过'), ('fail', '拒绝')],
         default='pending'
     )
 

@@ -22,6 +22,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('message.urls')),
+    path('api/', include('exercise_reminders.urls')),
     path('api/', include('web_profile.urls')),  # 包含应用路由
     path('api/auth/', include('rest_framework.urls')),  # 启用DRF登录
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

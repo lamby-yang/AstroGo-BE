@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "web_target",
     "message",
+    "exercise_reminders",
 ]
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 

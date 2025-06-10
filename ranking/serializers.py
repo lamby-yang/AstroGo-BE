@@ -37,6 +37,6 @@ class ExerciseRecordSerializer(serializers.ModelSerializer):
 
     def validate_duration(self, value):
         """确保时长是正数"""
-        if value <= 0:
+        if value < 0:
             raise serializers.ValidationError("运动时长必须大于0")
         return value
