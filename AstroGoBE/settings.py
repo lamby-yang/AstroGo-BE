@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "web_profile.apps.WebProfileConfig",
     "corsheaders",
+    "web_target",
+    "message",
+    "exercise_reminders",
 ]
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
@@ -59,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "message.middleware.TokenAuthMiddleware"
 ]
 
 ROOT_URLCONF = "AstroGoBE.urls"
@@ -137,3 +141,8 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+
+# settings.py
+JWT_SECRET = 'my_very_secret_jwt_key_1234567890'
