@@ -1,35 +1,49 @@
-from rest_framework import generics
 from message.models import ExerciseReminders
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from .serializers import ExerciseReminderSerializer
-from rest_framework import generics, permissions
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.authentication import TokenAuthentication
 
-class ExerciseReminderRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+
+class ExerciseReminderUpdateView(generics.GenericAPIView):
     serializer_class = ExerciseReminderSerializer
-    authentication_classes = [TokenAuthentication]  # 添加认证类
-    permission_classes = [permissions.IsAuthenticated]
-    lookup_field = 'reminder_id'
 
-    def get_queryset(self):
-        return ExerciseReminders.objects.filter(uid=self.request.user.id)
+    def post(self, request, *args, **kwargs):
+        # 从URL参数获取要更新的提醒ID
+        reminder_id = kwargs.get('reminder_id')
 
-    def get_object(self):
-        obj = super().get_object()
+        try:
+            # 获取要更新的提醒对象
+            instance = ExerciseReminders.objects.get(reminder_id=reminder_id)
+        except ExerciseReminders.DoesNotExist:
+            raise NotFound(f"Exercise reminder with ID {reminder_id} not found")
 
-        # 更详细的权限检查
-        if obj.uid != self.request.user.id:
-            self.raise_not_found_or_permission_denied()
+        # 部分更新（允许只传递需要修改的字段）
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
 
-        return obj
+        if serializer.is_valid():
+            # 保存更新
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Exercise reminder updated successfully',
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
 
-    def raise_not_found_or_permission_denied(self):
-        # 防止通过错误信息泄露数据存在性
-        raise PermissionDenied("资源不存在或您无访问权限")
+        # 处理无效数据
+        return Response({
+            'success': False,
+            'message': 'Validation failed',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
 class ExerciseReminderListCreate(generics.ListCreateAPIView):
     serializer_class = ExerciseReminderSerializer
 
     def get_queryset(self):
         uid = self.kwargs['uid']  # 从 URL 获取 uid
         return ExerciseReminders.objects.filter(uid=uid)
+
+
+
 

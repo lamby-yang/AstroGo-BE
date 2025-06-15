@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     "web_target",
     "message",
     "exercise_reminders",
+    "posts",
+    "comments",
+    'django_extensions',
 ]
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
@@ -51,6 +54,15 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+
+# JWT设置
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+}
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
