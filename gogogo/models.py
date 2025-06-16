@@ -5,7 +5,7 @@ from web_profile.models import User  # 导入 User 模型
 
 class ExerciseRecords(models.Model):
     # 用户外键，指向 User 模型中的 uid 字段
-    uid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='uid', verbose_name="用户ID")
+    uid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='uid', verbose_name="用户ID", related_name="gogogo_exercise_records")
     
     # 记录ID，自增主键
     record_id = models.AutoField(primary_key=True, verbose_name="记录ID")
@@ -50,6 +50,7 @@ class ExerciseRecords(models.Model):
     class Meta:
         db_table = "ExerciseRecords"
         verbose_name = "运动记录"
+        managed = False
         verbose_name_plural = verbose_name
 
     def __str__(self):

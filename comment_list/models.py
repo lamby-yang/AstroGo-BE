@@ -25,6 +25,7 @@ class SocialMediaPost(models.Model):
     class Meta:
         db_table = 'SocialMediaPost'
         ordering = ['-post_time']
+        managed = False
 
 
 class SocialCommentInteraction(models.Model):
@@ -39,6 +40,7 @@ class SocialCommentInteraction(models.Model):
     class Meta:
         db_table = 'SocialCommentInteraction'
         ordering = ['-interact_time']
-    
+        managed = False
+
     def __str__(self):
         return f'评论 ID: {self.interact_id}, 用户 ID: {self.uid}'

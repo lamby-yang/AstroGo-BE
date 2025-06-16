@@ -49,7 +49,8 @@ class ExerciseRecords(models.Model):
     uid = models.ForeignKey(
         UserInfo,
         on_delete=models.CASCADE,
-        db_column='uid'
+        db_column='uid',
+        related_name="message_exercise_records"
     )
     record_time = models.DateTimeField()
     duration = models.IntegerField()

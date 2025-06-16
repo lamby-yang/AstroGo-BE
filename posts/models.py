@@ -6,7 +6,8 @@ class SocialMediaPost(models.Model):
     uid = models.ForeignKey(
         UserInfo,
         on_delete=models.CASCADE,
-        db_column='uid'
+        db_column='uid',
+        related_name='media'
     )
     post_content = models.TextField()
     post_time = models.DateTimeField(auto_now_add=True)  # 自动填充时间

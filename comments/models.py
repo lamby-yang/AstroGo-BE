@@ -27,6 +27,7 @@ class Comment(models.Model):
         db_table = 'SocialCommentInteraction'
         ordering = ['-created_at']
         verbose_name = '社交评论'
+        managed = False
         verbose_name_plural = '社交评论'
 
     def __str__(self):
