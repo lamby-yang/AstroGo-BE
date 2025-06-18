@@ -10,9 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 from pathlib import Path
+<<<<<<< HEAD
 import pymysql
 pymysql.install_as_MySQLdb()
 
+=======
+>>>>>>> 6ca1c72ff20a23ea4480808f3fe08ee54f630ee8
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
