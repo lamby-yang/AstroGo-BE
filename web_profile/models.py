@@ -25,12 +25,6 @@ class User(models.Model):
         db_column='creat_time',
         verbose_name='创建时间'
     )
-    last_login_time = models.DateTimeField(
-        null=True,
-        blank=True,
-        db_column='last_login_time',  # 映射到数据库列名
-        verbose_name='最后登录时间'
-    )
     phone_number = models.CharField(
         max_length=20,
         unique=True,

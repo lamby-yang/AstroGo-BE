@@ -17,10 +17,6 @@ class UserSerializer(serializers.ModelSerializer):
         format="%Y-%m-%d %H:%M:%S",
         read_only=True
     )
-    last_login_time = serializers.DateTimeField(
-        format="%Y-%m-%d %H:%M:%S",
-        read_only=True
-    )
 
     class Meta:
         model = User
@@ -28,7 +24,6 @@ class UserSerializer(serializers.ModelSerializer):
             'uid',  # 对应数据库的 uid 字段
             'user_name',  # 原 username 字段
             'creat_time',
-            'last_login_time',
             'phone_number',
             'avatar_url',
             'department',
@@ -40,5 +35,4 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'uid',
             'creat_time',
-            'last_login_time',
         )

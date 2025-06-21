@@ -53,15 +53,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "last_login_time",
-                    models.DateTimeField(
-                        blank=True,
-                        db_column="last_login_time",
-                        null=True,
-                        verbose_name="最后登录时间",
-                    ),
-                ),
-                (
                     "phone_number",
                     models.CharField(
                         db_column="phone_number",
