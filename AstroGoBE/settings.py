@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "comment_list", 
     "ranking", 
     "gogogo",
+    "like",
     "rest_framework",
     "rest_framework_simplejwt",
     "web_profile.apps.WebProfileConfig",

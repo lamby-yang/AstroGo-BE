@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('message.urls')),
     path('api/', include('posts.urls')),
+    path('api/', include('like.urls')),
     path('api/', include('comments.urls')),
     path('api/', include('exercise_reminders.urls')),
     path('api/', include('web_profile.urls')),  # 包含应用路由
